@@ -26,9 +26,9 @@ SECRET_KEY = 'guagk8b^(ww(_ux8_5f_70tg7wnu=kriqwo^#it=f7t4a(x6&s'
 DEBUG = True
 
 #ngrok link
-#ALLOWED_HOSTS = ['41218d5904d3.ngrok.io']
+ALLOWED_HOSTS = ['127.0.0.1','localhost','0d85ae275321.ngrok.io']
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
