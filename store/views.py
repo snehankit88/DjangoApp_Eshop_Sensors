@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from .models.product import Product
 from .models.category import Category
 from .models.customer import Customer
-
+from django.contrib.auth.hashers import make_password,check_password
 # Create your views here.
+
+
 
 def index(request):
     products = None
@@ -27,31 +29,62 @@ def index(request):
     # return render(request,'orders/order.html')
 
 
+def validateCustomer(customer):
+    err_msg= None
+    if (not customer.password):
+        err_msg = "Password required"
+
+    elif customer.password:
+        if (len(customer.password) < 6):
+            err_msg = "Password size must be greater than 6"
+    if customer.isExists():
+        err_msg = "Email Address already registerd"
+
+    return err_msg
+
+
+
+def registerUser(request):
+
+    postData  = request.POST
+    email = postData.get('email')
+    fname = postData.get('fname')
+    lname = postData.get('lname')
+    pwd = postData.get('password')
+    phone = postData.get('phone')
+
+    #Validation
+
+    value = {
+        'fname':fname,
+        'lname':lname,
+        'phone':phone,
+        'email':email
+
+    }
+
+
+    err_msg = None
+    customer = Customer(first_name=fname, last_name=lname, email=email, password=pwd, phone=phone)
+
+    err_msg=validateCustomer(customer)
+
+
+    #saving
+    if not err_msg:
+        customer.password = make_password(customer.password)
+        customer.register()
+        return redirect('homepage')
+    else:
+        data={
+            'error':err_msg,
+            'values':value
+        }
+        print("already",err_msg)
+        return  render(request,'signup.html',data)
+
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html')
-    else:
-        postData  = request.POST
-
-        email = postData.get('email')
-        fname = postData.get('fname')
-        lname = postData.get('lname')
-        pwd = postData.get('password')
-        phone = postData.get('phone')
-
-        #Validation
-        err_msg = None
-
-        if(not pwd):
-            err_msg = "Password requuired"
-
-        elif pwd:
-            if(len(pwd)<6):
-                err_msg = "Password size must be greater than 6"
-
-
-        if not err_msg:
-            customer = Customer(first_name = fname,last_name = lname,email= email, password = pwd,phone = phone )
-            customer.register()
-        else:
-            return  render(request,'signup.html',{'error':err_msg})
+    else :
+        return registerUser(request)
