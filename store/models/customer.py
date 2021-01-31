@@ -8,6 +8,13 @@ class Customer(models.Model):
     password = models.CharField(max_length=500)
 
 
+    @staticmethod
+    def get_customer_by_email(email):
+        try:
+            return Customer.objects.get(email= email)
+        except:
+            return False
+
     def register(self):
         self.save()
 
